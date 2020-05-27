@@ -1,8 +1,8 @@
-require_relative 'lib/activestorage/ipfs/version'
+require_relative 'lib/active_storage/service/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "activestorage-ipfs"
-  spec.version       = Activestorage::Ipfs::VERSION
+  spec.version       = ActiveStorage::IpfsService::VERSION
   spec.authors       = ["Mulenga Bowa"]
   spec.email         = ["mulengabowa53@gmail.com"]
 
