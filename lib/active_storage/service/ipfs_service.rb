@@ -1,4 +1,20 @@
 require 'ipfs/client'
+
+class ActiveStorage::DirectUploadsController
+  private
+  def blob_args
+      params.require(:blob).permit(:key, :filename, :byte_size, :checksum, :content_type, :metadata).to_h.symbolize_keys
+  end
+end
+
+class ActiveStorage::Blob
+  class << self
+    def create_before_direct_upload!(key: nil, filename:, byte_size:, checksum:, content_type: nil, metadata: nil)
+      create! key: key, filename: filename, byte_size: byte_size, checksum: checksum, content_type: content_type, metadata: metadata
+    end
+  end
+end
+
 module ActiveStorage
   class Service::IpfsService < Service
     attr_reader :client
@@ -13,35 +29,27 @@ module ActiveStorage
     def upload(key, io, checksum: nil, **)
       instrument :upload, key: key, checksum: checksum do
         data = @client.add io.path
-        find_blob_by_key(key).update(key: data['Hash'])
+        find_blob(key).update(key: data['Hash'])
         # TODO: Ensure integrity of checksum
       end
     end
 
     def download(key, &block)
+      puts key
       if block_given?
         instrument :streaming_download, key: key do
           @client.download key, &block
         end
       else
         instrument :download, key: key do
-          # Make a query to check if file exists before
-          # making download request to prevent hanging
-          # requests when file doesn't exist
-          @client.file_exists! key
           @client.download key
-        rescue Ipfs::NotFoundError
-          raise ActiveStorage::FileNotFoundError
         end
       end
     end
 
     def download_chunk(key, range)
       instrument :download_chunk, key: key, range: range do
-        @client.file_exists! key
         @client.cat key, range.begin, range.size
-      rescue Ipfs::NotFoundError
-        raise ActiveStorage::FileNotFoundError
       end
     end
 
@@ -57,9 +65,15 @@ module ActiveStorage
       end
     end
 
+    def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
+      instrument :url_for_direct_upload, key: key do
+        "#{@client.api_endpoint}/api/v0/add"
+      end
+    end
+
     private
 
-    def find_blob_by_key(key)
+    def find_blob(key)
       Blob.find_by_key key
     end
   end

@@ -60,14 +60,6 @@ module Ipfs
       end
     end
 
-    def file_exists!(key)
-      dht_findProvs(key) do |chunk|
-        res = chunk.split("\n")[0]
-        res_json = JSON.parse res
-        raise NotFoundError, key unless res_json['Type'] == 4
-      end
-    end
-
     def build_file_url(hash, filename = '')
       query = filename.empty? ? '' : "?filename=#{filename}"
       "#{@gateway_endpoint}/ipfs/#{hash}#{query}"
