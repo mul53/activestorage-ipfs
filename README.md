@@ -1,8 +1,7 @@
 # Activestorage::Ipfs
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/activestorage/ipfs`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem extends the ActiveStorage::Service with an implementation for
+[IPFS](https://ipfs.io)
 
 ## Installation
 
@@ -16,13 +15,59 @@ And then execute:
 
     $ bundle install
 
-Or install it yourself as:
-
-    $ gem install activestorage-ipfs
-
 ## Usage
 
-TODO: Write usage instructions here
+In your Rails 5.2+ app, run:
+
+```
+rails active_storage:install
+```
+
+This will copy over active_storage migration for creating the tables and then run:
+
+```
+rails db:migrate
+```
+
+Declare a Ipfs service in `config/storage.yml`. Each service requires a `api_endpoint`
+and a `gateway_endpoint`
+
+```yml
+ipfs:
+  service: Ipfs
+  api_endpoint: http://localhost:5001
+  gateway_endpoint: http://localhost:8080
+```
+
+We now need to tell activestorage to use the ipfs service
+
+## Direct Upload
+
+Direct uploads can be used by installing `activestorage-ipfs-js` run:
+
+```
+npm install activestorage-ipfs-js
+```
+
+After installing the js package replace this line
+
+```js
+require("@rails/activestorage").start()
+```
+
+With this line:
+
+```js
+require("activestorage-ipfs-js").start()
+```
+
+We annotate the file inputs with the direct upload url, and the ipfs api url
+
+```
+<%= form.file_field :file, direct_upload: true, data: { ipfs_url: 'http://localhost:5001' }  =%>
+```
+
+That's it! Upon submission the file upload begins
 
 ## Development
 
