@@ -28,9 +28,7 @@ This will copy over active_storage migration for creating the tables and then ru
 ```
 rails db:migrate
 ```
-
-Declare a Ipfs service in `config/storage.yml`. Each service requires a `api_endpoint`
-and a `gateway_endpoint`
+We now need to tell activestorage to use the ipfs service. Declare a Ipfs service in `config/storage.yml`. Each service requires a `api_endpoint` and a `gateway_endpoint`
 
 ```yml
 ipfs:
@@ -38,8 +36,6 @@ ipfs:
   api_endpoint: http://localhost:5001
   gateway_endpoint: http://localhost:8080
 ```
-
-We now need to tell activestorage to use the ipfs service
 
 ## Direct Upload
 
