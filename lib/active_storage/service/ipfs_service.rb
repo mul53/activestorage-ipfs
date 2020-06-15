@@ -17,7 +17,7 @@ end
 
 module ActiveStorage
   class Service::IpfsService < Service
-    attr_reader :client
+    attr_accessor :client
 
     def initialize(api_endpoint:, gateway_endpoint:)
       @client = Ipfs::Client.new api_endpoint, gateway_endpoint
@@ -29,13 +29,12 @@ module ActiveStorage
     def upload(key, io, checksum: nil, **)
       instrument :upload, key: key, checksum: checksum do
         data = @client.add io.path
-        find_blob(key).update(key: data['Hash'])
+        find_blob(key).update key: data['Hash']
         # TODO: Ensure integrity of checksum
       end
     end
 
     def download(key, &block)
-      puts key
       if block_given?
         instrument :streaming_download, key: key do
           @client.download key, &block
@@ -54,18 +53,18 @@ module ActiveStorage
     end
 
     def url(key, content_type: nil, filename: nil, expires_in: nil, disposition: nil)
-      @client.build_file_url key, filename.to_s
-    end
-
-    def exists?(key)
-      instrument :exist, key: key do |payload|
-        answer = @client.file_exists?(key)
-        payload[:exist] = answer
-        answer
+      instrument :url, key: key do
+        @client.build_file_url key, filename.to_s
       end
     end
 
-    def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
+    def exists?(key)
+      instrument :exist, key: key do
+        @client.file_exists?(key)
+      end
+    end
+
+    def url_for_direct_upload(key, expires_in: nil, content_type: nil, content_length: nil, checksum: nil)
       instrument :url_for_direct_upload, key: key do
         "#{@client.api_endpoint}/api/v0/add"
       end
