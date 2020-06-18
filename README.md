@@ -42,7 +42,7 @@ ipfs:
 Direct uploads can be used by installing `activestorage-ipfs-js` run:
 
 ```
-npm install activestorage-ipfs-js
+yarn install activestorage-ipfs-js
 ```
 
 After installing the js package replace this line in `app/javascript/packs/application.js`
