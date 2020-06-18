@@ -62,6 +62,12 @@ We annotate the file inputs with the direct upload url, and the ipfs api url
 ```
 <%= form.file_field :file, direct_upload: true, data: { ipfs_url: 'http://localhost:5001' }  =%>
 ```
+If Ipfs is running at localhost run the following cmds:
+
+```
+ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
+ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]
+```
 
 That's it! Upon submission the file upload begins
 
