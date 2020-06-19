@@ -29,8 +29,18 @@ module ActiveStorage
     def upload(key, io, checksum: nil, **)
       instrument :upload, key: key, checksum: checksum do
         data = @client.add io.path
-        find_blob(key).update key: data['Hash']
-        # TODO: Ensure integrity of checksum
+        cid_key = data['Hash']
+
+        if blob_exists?(cid_key)
+          existing_blob = find_blob(cid_key)
+          new_blob = find_blob(key)
+          attachment = Attachment.last
+          
+          attachment.update blob_id: existing_blob.id
+          new_blob.destroy!
+        else
+          find_blob(key).update key: cid_key
+        end
       end
     end
 
@@ -74,6 +84,10 @@ module ActiveStorage
 
     def find_blob(key)
       Blob.find_by_key key
+    end
+
+    def blob_exists?(key)
+      Blob.exists?(key: key)
     end
   end
 end
