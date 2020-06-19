@@ -10,7 +10,7 @@ end
 class ActiveStorage::Blob
   class << self
     def create_before_direct_upload!(key: nil, filename:, byte_size:, checksum:, content_type: nil, metadata: nil)
-      create! key: key, filename: filename, byte_size: byte_size, checksum: checksum, content_type: content_type, metadata: metadata
+      find_or_create_by! key: key, filename: filename, byte_size: byte_size, checksum: checksum, content_type: content_type
     end
   end
 end
